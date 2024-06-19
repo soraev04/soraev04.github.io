@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>index</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+    <style>
+        /* 自訂滑桿點選鈕 */
+        #customRange1::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            /* 移除默認樣式 */
+            appearance: none;
+            /* 移除默認樣式 */
+            width: 20px;
+            /* 點選鈕的寬度 */
+            height: 20px;
+            /* 點選鈕的高度 */
+            background: rgb(0, 0, 0);
+            /* 點選鈕的顏色 */
+            cursor: pointer;
+            /* 鼠標樣式 */
+            border-radius: 50%;
+            /* 圓形點選鈕 */
+            transform: translateX(4px);
+            /* 調整點選鈕位置 */
+        }
+
+        .form-range::-moz-range-thumb {
+            width: 20px;
+            /* 滑桿點選鈕的寬度 */
+            height: 20px;
+            /* 滑桿點選鈕的高度 */
+            background: rgb(0, 0, 0);
+            /* 滑桿點選鈕的顏色 */
+            cursor: pointer;
+            /* 鼠標樣式 */
+            border-radius: 50%;
+            /* 圓形點選鈕 */
+        }
+
+        /* 上傳圖像 */
+        .file-upload {
+            width: 280px;
+            height: 280px;
+            border: 5px dashed #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            margin-left: 10px;
+            /* 新增這行來調整與下一個元素之間的距離 */
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-upload img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .file-upload .upload-text {
+            position: absolute;
+            color: #aaa;
+            font-size: 18px;
+        }
+
+        /* 將滑桿與navbar對齊 */
+        .vertical-slider-container {
+            display: flex;
+            align-items: flex-start;
+            height: 100%;
+            margin-top: 0;
+            margin-right: 30px;
+            /* 新增這行以增加間距 */
+        }
+
+        .vertical-slider {
+            writing-mode: bt-lr;
+            -webkit-appearance: slider-vertical;
+            width: 8px;
+            height: 250px;
+            margin: 20px 0;
+        }
+
+        .image-container {
+            margin-left: 10px;
+            /* 調整圖片位置，使其與滑桿對齊 */
+        }
+
+        .image-container img {
+            height: 30px;
+            width: 30px;
+        }
+
+        .box1 {
+            background-color: rgb(144, 144, 144);
+        }
+
+        /* 調整 Dropdown 間距 */
+        .dropdown+.dropdown {
+            margin-left: 10px;
+        }
+
+        .input-group {
+            margin-top: 10px;
+        }
+
+        /* 幻燈片秀背景 */
+        #background-slideshow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            /* 初始設置所有圖片隱藏 */
+            transition: opacity 1s ease-in-out;
+            /* 平滑的淡入淡出過渡效果 */
+        }
+    </style>
+</head>
+
+<body>
+    <!-- navbar↓ -->
+    <nav class="navbar  shadow p-3 mb-5 bg-body rounded navbar-light font-monospace bg-light">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="img/icon.png" alt="Baseball" width="30" height="30" class="d-inline-block align-text-top">
+                　Baseball Note Generate
+            </a>
+            <button class="btn box1 rounded-pill font-monospace text-light" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">How To Use</button>
+        </div>
+    </nav>
+    <!-- 文字輸入區 -->
+    <div class=" container content d-flex flex-column align-items-end mt-3">
+        <textarea id="content" rows="10" cols="40" class="form-control mb-2"></textarea>
+        <button onclick="generateURL()" class="btn box1 text-white rounded-pill">Generate</button>
+        <p id="urlDisplay" class="mt-2"></p>
+    </div>
+
+    <!-- 滑桿與圖片容器 -->
+    <div class="container  d-flex flex-row align-top">
+        <div class="vertical-slider-container">
+            <input type="range" class="form-range vertical-slider" id="customRange1">
+        </div>
+
+        <!-- 放圖片 -->
+        <div class=" file-upload">
+            <input type="file" id="formFile" accept="image/*">
+            <img id="preview" src="" alt="Image preview">
+            <div class="upload-text font-monospace" id="uploadText">UPLOAD</div>
+        </div>
+
+
+
+        <!-- 第一個 Dropdown -->
+        <div style="margin-left: 10px;">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    球場
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('台北大巨蛋', 'dropdownMenuButton1')">台北大巨蛋</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('台北市立天母棒球場', 'dropdownMenuButton1')">台北市立天母棒球場</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('新北市立新莊棒球場', 'dropdownMenuButton1')">新北市立新莊棒球場</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('樂天桃園棒球場', 'dropdownMenuButton1')">樂天桃園棒球場</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('新竹市立棒球場', 'dropdownMenuButton1')">新竹市立棒球場</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('台中洲際棒球場', 'dropdownMenuButton1')">台中洲際棒球場</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('斗六棒球場', 'dropdownMenuButton1')">斗六棒球場</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('嘉義縣立棒球場', 'dropdownMenuButton1')">嘉義縣立棒球場</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('亞太棒球場', 'dropdownMenuButton1')">亞太棒球場</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('台南市立棒球場', 'dropdownMenuButton1')">台南市立棒球場</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('高雄澄清湖棒球場', 'dropdownMenuButton1')">高雄澄清湖棒球場</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('屏東縣立棒球場', 'dropdownMenuButton1')">屏東縣立棒球場</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('中國信託公益園區', 'dropdownMenuButton1')">中國信託公益園區</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('花蓮棒球場', 'dropdownMenuButton1')">花蓮棒球場</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('台東棒球場', 'dropdownMenuButton1')">台東棒球場</a></li>
+                </ul>
+            </div>
+
+            <!-- 第一個 Dropdown 下面的 Input Groups -->
+            <div class="input-group">
+                <span class="input-group-text" id="inputGroup-sizing-default">日期</span>
+                <input type="text" class="form-control" aria-label="Sizing example input"
+                    aria-describedby="inputGroup-sizing-default">
+            </div>
+            <div class="input-group">
+                <span class="input-group-text" id="inputGroup-sizing-default">比賽時間</span>
+                <input type="text" class="form-control" aria-label="Sizing example input"
+                    aria-describedby="inputGroup-sizing-default">
+            </div>
+            <div class="input-group">
+                <span class="input-group-text" id="inputGroup-sizing-default">對戰組合</span>
+                <input type="text" class="form-control" aria-label="Sizing example input"
+                    aria-describedby="inputGroup-sizing-default">
+            </div>
+            <div class="input-group">
+                <span class="input-group-text" id="inputGroup-sizing-default">最終比分</span>
+                <input type="text" class="form-control" aria-label="Sizing example input"
+                    aria-describedby="inputGroup-sizing-default">
+            </div>
+            <div class="input-group">
+                <span class="input-group-text" id="inputGroup-sizing-default">其他備註</span>
+                <input type="text" class="form-control" aria-label="Sizing example input"
+                    aria-describedby="inputGroup-sizing-default">
+            </div>
+        </div>
+
+        <!-- 第二個 Dropdown -->
+        <div style="margin-left: 10px;">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    賽事類型
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('一軍例行賽', 'dropdownMenuButton2')">一軍例行賽</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('二軍例行賽', 'dropdownMenuButton2')">二軍例行賽</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('自辦熱身賽', 'dropdownMenuButton2')">自辦熱身賽</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('官辦熱身賽', 'dropdownMenuButton2')">官辦熱身賽</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('季後賽', 'dropdownMenuButton2')">季後賽</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('台灣大賽', 'dropdownMenuButton2')">台灣大賽</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('明星賽', 'dropdownMenuButton2')">明星賽</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('國際賽事', 'dropdownMenuButton2')">國際賽事</a></li>
+                    <li><a class="dropdown-item" href="#"
+                            onclick="updateDropdownTitle('交流賽', 'dropdownMenuButton2')">交流賽</a></li>
+                </ul>
+            </div>
+
+            <!-- 第二個 Dropdown 下面的 Input Groups -->
+            <div class="input-group">
+                <span class="input-group-text" id="inputGroup-sizing-default">主隊先發投手</span>
+                <input type="text" class="form-control" aria-label="Sizing example input"
+                    aria-describedby="inputGroup-sizing-default">
+            </div>
+            <div class="input-group">
+                <span class="input-group-text" id="inputGroup-sizing-default">客隊先發投手</span>
+                <input type="text" class="form-control" aria-label="Sizing example input"
+                    aria-describedby="inputGroup-sizing-default">
+            </div>
+            <div class="input-group">
+                <span class="input-group-text font-monospace" id="inputGroup-sizing-default"> highlight1 </span>
+                <input type="text" class="form-control" aria-label="Sizing example input"
+                    aria-describedby="inputGroup-sizing-default">
+            </div>
+            <div class="input-group">
+                <span class="input-group-text font-monospace" id="inputGroup-sizing-default"> highlight2 </span>
+                <input type="text" class="form-control" aria-label="Sizing example input"
+                    aria-describedby="inputGroup-sizing-default">
+            </div>
+            <div class="input-group">
+                <span class="input-group-text font-monospace" id="inputGroup-sizing-default"> highlight3 </span>
+                <input type="text" class="form-control" aria-label="Sizing example input"
+                    aria-describedby="inputGroup-sizing-default">
+            </div>
+        </div>
+    </div>
+
+    <!-- Offcanvas -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasExampleLabel">How To Use</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <p class="fw-bold fs-4 text-muted">筆記生成方式<br></p>
+            <p class="text-muted">✎ 上方欄位／<br>紀錄當日心得，可作為日記或比賽紀錄。<br><br>
+                ✎ 左下滑桿／<br>上下拉升，紀錄當天心情。<br><br>
+                ✎ UPLOAD／<br>上傳當天的照片。<br><br>
+                ✎ 選單／<br>用做賽事的基本紀錄，如當天日期、比賽類型、比賽地點與對戰組合等。<br><br>
+            </p> <!-- 在這裡添加您想要顯示的指南內容。 -->
+        </div>
+    </div>
+    <!-- 幻燈片秀背景 -->
+    <div id="background-slideshow">
+        <img src="img/01.jpg" class="background-image">
+        <img src="img/02.jpg" class="background-image">
+        <img src="img/03.jpg" class="background-image">
+        <img src="img/04.jpg" class="background-image">
+        <img src="img/05.jpg" class="background-image">
+    </div>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+
+    <script>
+        
+        document.getElementById('formFile').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.getElementById('preview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    document.getElementById('uploadText').style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function updateDropdownTitle(selectedText, dropdownId) {
+            document.getElementById(dropdownId).textContent = selectedText;
+        }
+
+        const images = document.querySelectorAll('.background-image');
+        let currentImageIndex = 0;
+
+        function showNextImage() {
+            // 隱藏當前圖片
+            images[currentImageIndex].style.opacity = '0';
+
+            // 移動到下一張圖片
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+
+            // 顯示下一張圖片
+            images[currentImageIndex].style.opacity = '0.8';
+        }
+
+        // 初始化：顯示第一張圖片
+        images[currentImageIndex].style.opacity = '0.8';
+
+        // 每 30 秒自動切換圖片
+        setInterval(showNextImage, 10000);
+    </script>
+</body>
+
+</html>
