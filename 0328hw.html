@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Divs</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #div6 {
+            width: 600px;
+            height: 600px;
+            background-color: rgb(255, 165, 182);
+            display: flex;
+            flex-wrap: wrap;
+            margin: 20px auto;
+        }
+
+        .div {
+
+            box-sizing: border-box;
+
+        }
+
+        .div1,
+        .div5 {
+            background-color: rgb(255, 80, 53);
+            width: 100px;
+            height: 100px;
+        }
+
+        .div2,
+        .div4 {
+            background-color: rgb(255, 123, 0);
+            width: 100px;
+            height: 200px;
+        }
+
+        .div3 {
+            background-color: rgb(162, 63, 192);
+            width: 100px;
+            height: 300px;
+        }
+
+        @media (max-width: 768px) {
+            .div {
+                margin-left: 0;
+                margin-top: 0;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 992px) {
+            #div6 {
+                justify-content: center;
+                align-items: center;
+            }
+        }
+
+        @media (min-width: 992px) {
+            #div6 {
+                justify-content: flex-end;
+                align-items: flex-end;
+            }
+
+            .div {
+                margin-left: auto;
+                margin-top: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="div6">
+        <div class="div div1">1</div>
+        <div class="div div2">2</div>
+        <div class="div div3">3</div>
+        <div class="div div4">4</div>
+        <div class="div div5">5</div>
+    </div>
+</body>
+
+</html>
